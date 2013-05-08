@@ -1,11 +1,11 @@
+function ConstantsStorage(){
+	this.SERVER_URL = "http://localhost/service";
+}
+
 /*
  * Event handler for button
  */
 function onLoginButtonClicked(){
-	var SERVER_URL = "http://localhost/service";
-	
-	// Access div tag
-	var elem = document.getElementById('auth_token_field');
 	
 	// Access input fields
 	var loginEdit = document.getElementById('login_edit');
@@ -14,19 +14,41 @@ function onLoginButtonClicked(){
 	var loginText = loginEdit.value;
 	var passwordText = passwordEdit.value;
 	
-	// Define callbacks as anonimous functions
-	var onLoadCallback = function(jsonResponse){
-
-		elem.innerHTML = jsonResponse.auth_token;//this.responseText;
-	};
-	var onErrorCallback = function(jsonResponse){
-		elem.innerHTML = "Error, code = "+jsonResponse.errno;
-	};
+	// Define callbacks 
+	var onLoadCallback = onLoginRequestSuccess;
+	
+	var onErrorCallback = onErrorOccured;
 	
 	// Do request
-	sendLoginRequest(SERVER_URL, loginText, passwordText, onLoadCallback, onErrorCallback);
+	sendLoginRequest(loginText, passwordText, onLoadCallback, onErrorCallback);
 	
 }
+
+
+function onErrorOccured(jsonResponse){
+	// Access div tag
+	setElementText("error_field", "Error, code = "+jsonResponse.errno);
+}
+
+function onLoginRequestSuccess(jsonResponse){
+	var auth_token = jsonResponse.auth_token;
+	setElementText("auth_token_field",auth_token);
+
+	sendAvailableChannelsRequest(auth_token, onAvailableChannelsRequestSuccess, onErrorOccured);
+}
+
+function onAvailableChannelsRequestSuccess(jsonResponse){
+	var channelsText = "";
+	
+	var channels = jsonResponse.channels;
+	
+	for (var i = 0 ; i < channels.length ; i++){
+		channelsText = channelsText + channels[i].name + "<br>" ;
+	}
+	
+	setElementText("channels_field", channelsText);
+}
+
 
 /*
  * Perform POST async request
@@ -38,7 +60,7 @@ function onLoginButtonClicked(){
 function doRequestInternal(url, data, onLoadCallback, onErrorCallback)
 {
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', url, true);
+	xhr.open('POST', (new ConstantsStorage()).SERVER_URL + url, true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
 
 	xhr.onload = function() {
@@ -64,11 +86,10 @@ function doRequestInternal(url, data, onLoadCallback, onErrorCallback)
 }
 
 /* 
- * @param {string} serverUrl
  * @param {function (jsonObject)} onLoadCallback 
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendVersionRequest(serverUrl, data, onLoadCallback, onErrorCallback){
+function sendVersionRequest( data, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/version";
 	
 	doRequestInternal(serverUrl + REQUEST_URL, "", onLoadCallback, onErrorCallback);
@@ -76,13 +97,12 @@ function sendVersionRequest(serverUrl, data, onLoadCallback, onErrorCallback){
 
 
 /* 
- * @param {string} serverUrl
  * @param {string} loginText 
  * @param {string} passwordText
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendLoginRequest(serverUrl, loginText, passwordText, onLoadCallback, onErrorCallback){
+function sendLoginRequest(loginText, passwordText, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/login";
 	
 	// Create custom object
@@ -91,17 +111,16 @@ function sendLoginRequest(serverUrl, loginText, passwordText, onLoadCallback, on
 		password: passwordText
 	};
 	
-	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
 
 /* 
- * @param {string} serverUrl
  * @param {string} authToken
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendAvailableChannelsRequest(serverUrl, authToken, onLoadCallback, onErrorCallback){
+function sendAvailableChannelsRequest(authToken, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/channels";
 	
 	// Create custom object
@@ -109,17 +128,16 @@ function sendAvailableChannelsRequest(serverUrl, authToken, onLoadCallback, onEr
 		auth_token: authToken,
 	};
 
-	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
 
 /* 
- * @param {string} serverUrl
  * @param {string} authToken
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendSubscribedChannelsRequest(serverUrl, authToken, onLoadCallback, onErrorCallback){
+function sendSubscribedChannelsRequest(authToken, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/subscribed";
 	
 	// Create custom object
@@ -127,18 +145,17 @@ function sendSubscribedChannelsRequest(serverUrl, authToken, onLoadCallback, onE
 		auth_token: authToken,
 	};
 
-	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
 
 /* 
- * @param {string} serverUrl
  * @param {string} authToken
  * @param {string} channelName
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCallback, onErrorCallback){
+function sendSubscribeChannelRequest(authToken, channelName, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/subscribe";
 	
 	// Create custom object
@@ -147,18 +164,17 @@ function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCa
 		channel: channelName
 	};
 
-	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
 
 /* 
- * @param {string} serverUrl
  * @param {string} authToken
  * @param {string} channelName
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCallback, onErrorCallback){
+function sendSubscribeChannelRequest(authToken, channelName, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/unsubscribe";
 	
 	// Create custom object
@@ -167,12 +183,11 @@ function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCa
 		channel: channelName
 	};
 
-	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
 
 /* 
- * @param {string} serverUrl
  * @param {string} authToken
  * @param {number} longitude
  * @param {number} latitude
@@ -180,15 +195,23 @@ function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCa
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendLoadTagsRequest(serverUrl, authToken, longitude, latitude, radius, onLoadCallback, onErrorCallback){
+function sendLoadTagsRequest(authToken, longitude, latitude, radius, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/loadTags";
 	
 	// Create custom object
 	var data = {
 		auth_token: authToken,
-		channel: channelName
+		latitude: latitude,
+		longitude: longitude,
+		radius: radius
 	};
 
-	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
+}
+
+function setElementText(elementName, text){
+	var elem = document.getElementById(elementName);
+	elem.innerHTML = text;
+
 }
