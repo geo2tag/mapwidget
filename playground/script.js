@@ -17,10 +17,10 @@ function onLoginButtonClicked(){
 	// Define callbacks as anonimous functions
 	var onLoadCallback = function(jsonResponse){
 
-		elem.innerHTML = jsonResponse["auth_token"];//this.responseText;
+		elem.innerHTML = jsonResponse.auth_token;//this.responseText;
 	};
 	var onErrorCallback = function(jsonResponse){
-		elem.innerHTML = "Error, code = "+jsonResponse["errno"];
+		elem.innerHTML = "Error, code = "+jsonResponse.errno;
 	};
 	
 	// Do request
@@ -91,6 +91,104 @@ function sendLoginRequest(serverUrl, loginText, passwordText, onLoadCallback, on
 		password: passwordText
 	};
 	
+	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+
+/* 
+ * @param {string} serverUrl
+ * @param {string} authToken
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendAvailableChannelsRequest(serverUrl, authToken, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/channels";
+	
+	// Create custom object
+	var data = {
+		auth_token: authToken,
+	};
+
+	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+
+/* 
+ * @param {string} serverUrl
+ * @param {string} authToken
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendSubscribedChannelsRequest(serverUrl, authToken, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/subscribed";
+	
+	// Create custom object
+	var data = {
+		auth_token: authToken,
+	};
+
+	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+
+/* 
+ * @param {string} serverUrl
+ * @param {string} authToken
+ * @param {string} channelName
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/subscribe";
+	
+	// Create custom object
+	var data = {
+		auth_token: authToken,
+		channel: channelName
+	};
+
+	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+
+/* 
+ * @param {string} serverUrl
+ * @param {string} authToken
+ * @param {string} channelName
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendSubscribeChannelRequest(serverUrl, authToken, channelName, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/unsubscribe";
+	
+	// Create custom object
+	var data = {
+		auth_token: authToken,
+		channel: channelName
+	};
+
+	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+
+/* 
+ * @param {string} serverUrl
+ * @param {string} authToken
+ * @param {number} longitude
+ * @param {number} latitude
+ * @param {number} radius 
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendLoadTagsRequest(serverUrl, authToken, longitude, latitude, radius, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/loadTags";
+	
+	// Create custom object
+	var data = {
+		auth_token: authToken,
+		channel: channelName
+	};
+
 	doRequestInternal(serverUrl + REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
