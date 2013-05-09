@@ -154,7 +154,7 @@ function sendSubscribeChannelRequest(authToken, channelName, onLoadCallback, onE
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendLoadTagsRequest(authToken, longitude, latitude, radius, onLoadCallback, onErrorCallback){
+function sendLoadTagsRequest(authToken, latitude, longitude, radius, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/loadTags";
 	
 	// Create custom object
