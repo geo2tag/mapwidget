@@ -21,17 +21,59 @@ MapWidget.prototype.initMapWidget = function (){
 	}).addTo(this.map);
 }
 	
-
+/*
+ * Add tags array to the map
+ */
 MapWidget.prototype.addTagsToMap = function ( tags ){
+	var tagMarkers = new Object();
+
 	for (var i =0 ; i < tags.length ; i++){
 		var tag = tags[i];
-		L.marker([tag.latitude, tag.longitude]).addTo(this.map)
-		.bindPopup("<b>" + tag.title +" (" + tag.pubDate + ")</b><br><a href="
+		var currentMarker = L.marker([tag.latitude, tag.longitude]).
+		bindPopup("<b>" + tag.title +" (" + tag.pubDate + ")</b><br><a href="
 		 + tag.link + ">"+tag.link+"</a><br>" +tag.description);
+		 
+		if ( !(tag.user in tagMarkers) ){
+			tagMarkers[tag.user] = new Array();
+			console.log("Creating array for " + tag.user);
+		}
+		
+		tagMarkers[tag.user].push(currentMarker);
 	}
-};
 	
+	this.addLayerControl(tagMarkers);
+}
+
+/* 
+ * Creates UI element with checkbox for each user
+ * @param {map user - tag array} tagMarkers
+ */
+MapWidget.prototype.addLayerControl = function (tagMarkers){
+	var overlayMaps = new Object();
 	
+	for (var u in tagMarkers){
+		console.log(u+ " " + tagMarkers[u].length);
+		var currentGroup = L.layerGroup(tagMarkers[u]).addTo(this.map);
+		overlayMaps[u] = currentGroup;	
+	} 
+	L.control.layers(null, overlayMaps).addTo(this.map);
+}
+	
+// TODO find how remove all tags 	
+MapWidget.prototype.removeAllTagsFromMap = function(){
+	
+}	
+
+MapWidget.prototype.centerInDefaultPosition = function(){
+
+	this.map.panTo(new L.LatLng(this.latitude, this.longtiude));
+}
+	
+MapWidget.prototype.changeMapCenter = function (latitude, longitude){
+	this.latitude = latitude;
+	this.longitude = longitude;
+	this.centerInDefaultPosition();
+}	
 	
 /*
  * Login as (login, password)
@@ -62,6 +104,8 @@ MapWidget.prototype.onLoadTagsSuccess = function (jsonResponse){
 MapWidget.prototype.onErrorOccured = function (jsonResponse){
 	alert("Error during requests processing, errno = "+jsonResponse.errno);
 }
+
+
 
 
 /*
