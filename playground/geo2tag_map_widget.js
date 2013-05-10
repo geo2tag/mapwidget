@@ -1,9 +1,12 @@
-function MapWidget(latitude, longitude, widgetName){
+function MapWidget(latitude, longitude, radius, widgetName){
 	this.latitude = latitude;
 	this.longitude = longitude;
 	this.widgetName = widgetName;
-	this.radius = 10;
+	this.radius = radius;
 	this.map = null;
+	this.markers = new Array() ;
+	this.mapControl = null;
+	
 	
 	this.initMapWidget();
 }
@@ -25,6 +28,8 @@ MapWidget.prototype.initMapWidget = function (){
  * Add tags array to the map
  */
 MapWidget.prototype.addTagsToMap = function ( tags ){
+	this.removeAllTagsFromMap();
+
 	var tagMarkers = new Object();
 
 	for (var i =0 ; i < tags.length ; i++){
@@ -38,6 +43,8 @@ MapWidget.prototype.addTagsToMap = function ( tags ){
 			console.log("Creating array for " + tag.user);
 		}
 		
+		this.markers.push(currentMarker);
+		
 		tagMarkers[tag.user].push(currentMarker);
 	}
 	
@@ -49,24 +56,30 @@ MapWidget.prototype.addTagsToMap = function ( tags ){
  * @param {map user - tag array} tagMarkers
  */
 MapWidget.prototype.addLayerControl = function (tagMarkers){
-	var overlayMaps = new Object();
+	overlayMaps = new Object();
 	
 	for (var u in tagMarkers){
 		console.log(u+ " " + tagMarkers[u].length);
 		var currentGroup = L.layerGroup(tagMarkers[u]).addTo(this.map);
 		overlayMaps[u] = currentGroup;	
 	} 
-	L.control.layers(null, overlayMaps).addTo(this.map);
+	this.mapControl = L.control.layers(null, overlayMaps).addTo(this.map);
 }
 	
 // TODO find how remove all tags 	
 MapWidget.prototype.removeAllTagsFromMap = function(){
-	
+	if (this.markers.length == 0  ) return;
+	for (var i = 0 ; i<this.markers.length; i++){
+		this.map.removeLayer(this.markers[i]);
+	}
+	this.markers.length=0;
+
+	this.map.removeControl(this.mapControl);
 }	
 
 MapWidget.prototype.centerInDefaultPosition = function(){
 
-	this.map.panTo(new L.LatLng(this.latitude, this.longtiude));
+	this.map.panTo(new L.LatLng(this.latitude, this.longitude));
 }
 	
 MapWidget.prototype.changeMapCenter = function (latitude, longitude){

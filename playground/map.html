@@ -9,13 +9,68 @@
 	
 	<script src="http://leafletjs.com/dist/leaflet.js"></script>
 	<script src="geo2tag_map_widget.js"></script>
-</head>
-<html>
-	<div id="map" style="width: 600px; height: 400px"></div>
-
 	
 	<script>
-		var mapWidget = new MapWidget(59.9195, 30.3262, "map");
-		mapWidget.loadTagsForUser("Mark", "test");
+		function onRefreshButtonClicked(){
+			var login = document.getElementById('login_edit').value;
+			var password = document.getElementById('login_edit').value;
+			var radius = document.getElementById('radius_edit').value;
+			var latitude = document.getElementById('latitude_edit').value;
+			var longitude = document.getElementById('longitude_edit').value;
+
+			if ( (typeof latitude == "number") || (typeof longitude == "number") || radius<1){
+				console.log("Radius, latitude or longitude have incorrect value!!!");
+				return;
+			}
+
+			mapWidget.radius = radius;
+			mapWidget.loadTagsForUser(login, password);
+
+		}
+		
+		function onContextMenu(e){
+			console.log("Map clicked at "+e.latlng);
+			
+			document.getElementById('latitude_edit').value = e.latlng.lat;
+			document.getElementById('longitude_edit').value = e.latlng.lng;
+			
+			mapWidget.changeMapCenter(e.latlng.lat, e.latlng.lng);
+			
+			
+			
+			//alert("You clicked the map at " + e.latlng);
+		}
 	</script>
+</head>
+<html>	
+
+<table border>
+        <tr>
+                <td>
+			Login<br>
+			<input type="text" size="40" id="login_edit" title="Login" value="Mark" ><br>
+			Password<br>
+			<input type="text" size="40" id="password_edit" title="Password" value="test"><br>
+			Radius<br>
+			<input type="number" size="40" id="radius_edit" title="Radius" value="10"><br>
+			Latitude<br>
+			<input type="text" size="40" id="latitude_edit" title="Latitude" value="59.9195" ><br>
+			Longitude<br>
+			<input type="text" size="40" id="longitude_edit" title="Longitude" value="30.3262"><br>
+			<button onclick="onRefreshButtonClicked();">Refresh (do loadTags request for specified data)!</button><br>	
+		</td> 
+		<td>
+			<div id="map" style="width: 600px; height: 400px"></div>
+
+	
+			<script>
+				var mapWidget = new MapWidget(59.9195, 30.3262, 10, "map");
+				
+				mapWidget.map.on("contextmenu", onContextMenu);
+				
+				mapWidget.loadTagsForUser("Mark", "test");
+			</script>
+		</td> 
+        </tr>
+</table>	
 </html>
