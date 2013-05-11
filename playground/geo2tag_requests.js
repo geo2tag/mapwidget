@@ -16,7 +16,7 @@ function SettingsStorage(){
 }
 
 // Default value
-SettingsStorage.SERVER_URL = "http://localhost/service";
+SettingsStorage.SERVER_URL = "http://demo64.geo2tag.org/service";
 
 /*
  * DataMark class constructor
@@ -40,7 +40,16 @@ function DataMark(latitude, longitude, altitude, title, description, time, chann
 	this.channel = channel;
 }
 
-
+DataMark.getStringRepresentation = function(tag){
+	var result = "<b>" + tag.title +"</b><br>By <b>" + tag.user + "</b>, "+ tag.pubDate + "<br><a href="
+		 + tag.link + ">"+tag.link+"</a><br>" +tag.description;
+	
+	if ("channel" in tag){
+		result = result + "<br>Channel: "+tag.channel;
+	}	 
+	
+	return result;
+};
 
 /*
  * Perform POST async request

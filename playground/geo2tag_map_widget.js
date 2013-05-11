@@ -29,14 +29,15 @@ MapWidget.prototype.initMapWidget = function (){
  */
 MapWidget.prototype.addTagsToMap = function ( tags ){
 	this.removeAllTagsFromMap();
-
+	
+	if (tags.length == 0 ) return;
+ 
 	var tagMarkers = new Object();
 
 	for (var i =0 ; i < tags.length ; i++){
 		var tag = tags[i];
 		var currentMarker = L.marker([tag.latitude, tag.longitude]).
-		bindPopup("<b>" + tag.title +" (" + tag.pubDate + ")</b><br><a href="
-		 + tag.link + ">"+tag.link+"</a><br>" +tag.description);
+		bindPopup(DataMark.getStringRepresentation(tag));
 		 
 		if ( !(tag.user in tagMarkers) ){
 			tagMarkers[tag.user] = new Array();
@@ -66,7 +67,9 @@ MapWidget.prototype.addLayerControl = function (tagMarkers){
 	this.mapControl = L.control.layers(null, overlayMaps).addTo(this.map);
 }
 	
-// TODO find how remove all tags 	
+/*
+ * Remove all tags from map
+ */
 MapWidget.prototype.removeAllTagsFromMap = function(){
 	if (this.markers.length == 0  ) return;
 	for (var i = 0 ; i<this.markers.length; i++){
@@ -77,11 +80,17 @@ MapWidget.prototype.removeAllTagsFromMap = function(){
 	this.map.removeControl(this.mapControl);
 }	
 
+/*
+ * Centers map in (this.latitude, this.longitude)
+ */
 MapWidget.prototype.centerInDefaultPosition = function(){
 
 	this.map.panTo(new L.LatLng(this.latitude, this.longitude));
 }
 	
+/*
+ * Change (this.latitude, this.longitude) and call centerInDefaultPosition
+ */
 MapWidget.prototype.changeMapCenter = function (latitude, longitude){
 	this.latitude = latitude;
 	this.longitude = longitude;
