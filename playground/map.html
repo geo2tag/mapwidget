@@ -15,7 +15,7 @@
 			var login = document.getElementById("login_edit").value;
 			var password = document.getElementById("login_edit").value;
 			
-			mapWidget.addOnLoginListener(onMapWidgetLogin);
+			mapWidget.addEventListener("onLoginSuccess",onMapWidgetLogin);
 			mapWidget.login(login, password);
 
 		}
@@ -30,7 +30,7 @@
 				return;
 			}
 
-			mapWidget.addOnFilterSuccessListener(startChannelsRetriving);
+			mapWidget.addEventListener("onFilterSuccess",startChannelsRetriving);
 			mapWidget.filterCircle(latitude, longitude, radius, "09 05 2010 02:05:48.356", "09 05 2015 02:05:48.356");
 			
 		}

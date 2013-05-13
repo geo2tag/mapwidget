@@ -9,8 +9,8 @@ function MapWidget(latitude, longitude, radius, widgetName){
 	this.authToken = null;
 	
 	// Listeners
-	this.onLoginListeners = new Array();
-	this.onFilterSuccessListeners = new Array();
+	this.eventListeners = new Object();
+
 	
 	this.initMapWidget();
 }
@@ -132,22 +132,10 @@ MapWidget.prototype.filterCircle = function (latitude, longitude, radius, timeFr
 		
 }
 
-/* 
- * Add listener to onFilterSuccess event
- * @param {function()} listener
- */
-MapWidget.prototype.addOnFilterSuccessListener = function (listener){
-	if (this.onFilterSuccessListeners.indexOf(listener) == -1){
-		this.onFilterSuccessListeners.push(listener);
-	}
-}
 
 MapWidget.prototype.onFilterSuccess = function (jsonResponse){
 
-	for (var i=0; i<this.onFilterSuccessListeners.length ; i++){
-		console.log("Executing "+i+" listener");
-		(this.onFilterSuccessListeners[i])();
-	}
+	this.raiseEvent("onFilterSuccess");
 
 	var channels = jsonResponse.channels;
 	var tags = new Array();
@@ -160,22 +148,17 @@ MapWidget.prototype.onFilterSuccess = function (jsonResponse){
 			tags.push(tag);
 		}
 	}
-	//console.log("onFilterCircleSuccess: Loaded "+ tags.length + " tags");
 	this.addTagsToMap(tags, "channel");
 }	
 		
 /*
- * Store auth_token and trigger onLoginListeners
+ * Store auth_token and trigger onLoginSuccess event
  */
 MapWidget.prototype.onLoginSuccess = function (jsonResponse){
 	this.authToken = jsonResponse.auth_token;
 	console.log("LoginQuery succed");
-	for (var i=0; i<this.onLoginListeners.length ; i++){
-		console.log("Executing "+i+" listener");
-		(this.onLoginListeners[i])();
-	}
-		
 	
+	this.raiseEvent("onLoginSuccess");
 }
 
 
@@ -193,12 +176,36 @@ MapWidget.prototype.onErrorOccured = function (jsonResponse){
 
 
 /* 
- * Add listener to onLogin event
+ * Add listener to event
+ * @param {string} event
  * @param {function()} listener
  */
-MapWidget.prototype.addOnLoginListener = function (listener){
-	if (this.onLoginListeners.indexOf(listener) == -1){
-		this.onLoginListeners.push(listener);
+MapWidget.prototype.addEventListener = function (event, listener){
+	var listeners;
+	if (event in this.eventListeners)
+		listeners = this.eventListeners[event];
+	else 
+		listeners = new Array();
+	
+	if (listeners.indexOf(listener) == -1)
+		listeners.push(listener);
+	
+	this.eventListeners[event] = listeners;
+}
+
+/*
+ * Call all listeners for event
+ * @param {string} event
+ */
+MapWidget.prototype.raiseEvent = function(event){
+	if (event in this.eventListeners){
+		var listeners = this.eventListeners[event];
+		for (var i=0; i<listeners.length ; i++){
+			console.log("Executing "+i+" listener");
+			(listeners[i])();
+		}
+	}else{
+		console.log("Event " + event+ " not found at MapWidget!!!");
 	}
 }
 
