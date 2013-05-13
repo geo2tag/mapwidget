@@ -64,6 +64,8 @@ function doRequestInternal(url, data, onLoadCallback, onErrorCallback)
 	xhr.open('POST', SettingsStorage.SERVER_URL + url, true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
 
+	console.log("Sending "+data+ ", to "+url);
+
 	xhr.onload = function() {
 		// Parsing response 
 		var responseObject = JSON.parse(this.responseText);
@@ -126,7 +128,7 @@ function sendAvailableChannelsRequest(authToken, onLoadCallback, onErrorCallback
 	
 	// Create custom object
 	var data = {
-		auth_token: authToken,
+		auth_token: authToken
 	};
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
@@ -143,7 +145,7 @@ function sendSubscribedChannelsRequest(authToken, onLoadCallback, onErrorCallbac
 	
 	// Create custom object
 	var data = {
-		auth_token: authToken,
+		auth_token: authToken
 	};
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
@@ -175,7 +177,7 @@ function sendSubscribeChannelRequest(authToken, channelName, onLoadCallback, onE
  * @param {function (jsonObject)} onLoadCallback
  * @param {function (jsonObject)} onErrorCallback
  */
-function sendSubscribeChannelRequest(authToken, channelName, onLoadCallback, onErrorCallback){
+function sendUnsubscribeChannelRequest(authToken, channelName, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/unsubscribe";
 	
 	// Create custom object
@@ -331,7 +333,7 @@ function sendFilterRectangleRequest(authToken, latitude1, longitude1, latitude2,
  * @param {number} latitude2
  * @param {number} longitude2
  */
-sendFilterCircleRequest.buildJson = function (data, latitude1, longitude1, latitude2, longitude2){
+sendFilterRectangleRequest.buildJson = function (data, latitude1, longitude1, latitude2, longitude2){
 	// Create custom object
 	
 	(data["latitude_shift"])["latitude1"] = latitude1;

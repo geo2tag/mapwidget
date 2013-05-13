@@ -6,7 +6,11 @@ function MapWidget(latitude, longitude, radius, widgetName){
 	this.map = null;
 	this.markers = new Array() ;
 	this.mapControl = null;
+	this.authToken = null;
 	
+	// Listeners
+	this.onLoginListeners = new Array();
+	this.onFilterSuccessListeners = new Array();
 	
 	this.initMapWidget();
 }
@@ -26,8 +30,10 @@ MapWidget.prototype.initMapWidget = function (){
 	
 /*
  * Add tags array to the map
+ * @param {array<tag>} tags
+ * @param {stirng} fieldToGroup - name of tag object, which will be used for tag grouping (user, channel ..)
  */
-MapWidget.prototype.addTagsToMap = function ( tags ){
+MapWidget.prototype.addTagsToMap = function ( tags, fieldToGroup ){
 	this.removeAllTagsFromMap();
 	
 	if (tags.length == 0 ) return;
@@ -39,14 +45,14 @@ MapWidget.prototype.addTagsToMap = function ( tags ){
 		var currentMarker = L.marker([tag.latitude, tag.longitude]).
 		bindPopup(DataMark.getStringRepresentation(tag));
 		 
-		if ( !(tag.user in tagMarkers) ){
-			tagMarkers[tag.user] = new Array();
-			console.log("Creating array for " + tag.user);
+		if ( !(tag[fieldToGroup] in tagMarkers) ){
+			tagMarkers[tag[fieldToGroup]] = new Array();
+			console.log("Creating array for " + tag[fieldToGroup]);
 		}
 		
 		this.markers.push(currentMarker);
 		
-		tagMarkers[tag.user].push(currentMarker);
+		tagMarkers[tag[fieldToGroup]].push(currentMarker);
 	}
 	
 	this.addLayerControl(tagMarkers);
@@ -97,30 +103,88 @@ MapWidget.prototype.changeMapCenter = function (latitude, longitude){
 	this.centerInDefaultPosition();
 }	
 	
+MapWidget.prototype.login = function (userName, password){
+	sendLoginRequest(userName, password,
+		bind(this, "onLoginSuccess"), bind(this, "onErrorOccured"));
+}	
+	
 /*
- * Login as (login, password)
- * Load tags for coordinates
+ * Load tags for coordinates this.latitude, this.longitude and this.radius 
  */
-MapWidget.prototype.loadTagsForUser = function (login, password){
+MapWidget.prototype.loadTags = function (latitude, longitude, radius){
 
-	sendLoginRequest(login, password, bind(this,"onLoginSuccess"), bind(this, "onErrorOccured"));
+	if (this.authToken == null) return;
+
+	sendLoadTagsRequest(this.authToken, latitude, longitude, radius, 
+		bind(this, "onLoadTagsSuccess"), bind(this, "onErrorOccured"));
 		
 };
-	
-		
 
-MapWidget.prototype.onLoginSuccess = function (jsonResponse){
-	var auth_token = jsonResponse.auth_token;
+/*
+ * Perform filterCircle request
+ */
+MapWidget.prototype.filterCircle = function (latitude, longitude, radius, timeFrom, timeTo){
+
+	if (this.authToken == null) return;
+
+	sendFilterCircleRequest(this.authToken, latitude, longitude, timeFrom, timeTo, radius, null,
+		bind(this, "onFilterSuccess"), bind(this, "onErrorOccured"));
 		
-	sendLoadTagsRequest(auth_token, this.latitude, this.longitude, this.radius, 
-		bind(this, "onLoadTagsSuccess"), bind(this, "onErrorOccured"));
 }
+
+/* 
+ * Add listener to onFilterSuccess event
+ * @param {function()} listener
+ */
+MapWidget.prototype.addOnFilterSuccessListener = function (listener){
+	if (this.onFilterSuccessListeners.indexOf(listener) == -1){
+		this.onFilterSuccessListeners.push(listener);
+	}
+}
+
+MapWidget.prototype.onFilterSuccess = function (jsonResponse){
+
+	for (var i=0; i<this.onFilterSuccessListeners.length ; i++){
+		console.log("Executing "+i+" listener");
+		(this.onFilterSuccessListeners[i])();
+	}
+
+	var channels = jsonResponse.channels;
+	var tags = new Array();
+	for (var i=0; i< channels.length; i++ ){
+		var channelTags = channels[i].channel.items;
+		var channelName = channels[i].channel.name;
+		for (var j=0; j<channelTags.length; j++){
+			var tag = channelTags[j];
+			tag["channel"] = channelName;
+			tags.push(tag);
+		}
+	}
+	//console.log("onFilterCircleSuccess: Loaded "+ tags.length + " tags");
+	this.addTagsToMap(tags, "channel");
+}	
+		
+/*
+ * Store auth_token and trigger onLoginListeners
+ */
+MapWidget.prototype.onLoginSuccess = function (jsonResponse){
+	this.authToken = jsonResponse.auth_token;
+	console.log("LoginQuery succed");
+	for (var i=0; i<this.onLoginListeners.length ; i++){
+		console.log("Executing "+i+" listener");
+		(this.onLoginListeners[i])();
+	}
+		
+	
+}
+
+
 
 MapWidget.prototype.onLoadTagsSuccess = function (jsonResponse){
 
 	var tags = jsonResponse.rss.channels.items[0].items;
-	console.log("Loaded "+ tags.length + " tags");
-	this.addTagsToMap(tags);
+	console.log("onLoadTagsSuccess: Loaded "+ tags.length + " tags");
+	this.addTagsToMap(tags, "user");
 }
 	
 MapWidget.prototype.onErrorOccured = function (jsonResponse){
@@ -128,6 +192,15 @@ MapWidget.prototype.onErrorOccured = function (jsonResponse){
 }
 
 
+/* 
+ * Add listener to onLogin event
+ * @param {function()} listener
+ */
+MapWidget.prototype.addOnLoginListener = function (listener){
+	if (this.onLoginListeners.indexOf(listener) == -1){
+		this.onLoginListeners.push(listener);
+	}
+}
 
 
 /*

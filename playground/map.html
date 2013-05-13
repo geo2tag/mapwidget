@@ -12,34 +12,96 @@
 	
 	<script>
 		function onRefreshButtonClicked(){
-			var login = document.getElementById('login_edit').value;
-			var password = document.getElementById('login_edit').value;
-			var radius = document.getElementById('radius_edit').value;
-			var latitude = document.getElementById('latitude_edit').value;
-			var longitude = document.getElementById('longitude_edit').value;
+			var login = document.getElementById("login_edit").value;
+			var password = document.getElementById("login_edit").value;
+			
+			mapWidget.addOnLoginListener(onMapWidgetLogin);
+			mapWidget.login(login, password);
 
+		}
+		
+		function onMapWidgetLogin(){
+			var radius = document.getElementById("radius_edit").value;
+			var latitude = document.getElementById("latitude_edit").value;
+			var longitude = document.getElementById("longitude_edit").value;
+			
 			if ( (typeof latitude == "number") || (typeof longitude == "number") || radius<1){
 				console.log("Radius, latitude or longitude have incorrect value!!!");
 				return;
 			}
 
-			mapWidget.radius = radius;
-			mapWidget.loadTagsForUser(login, password);
+			mapWidget.addOnFilterSuccessListener(startChannelsRetriving);
+			mapWidget.filterCircle(latitude, longitude, radius, "09 05 2010 02:05:48.356", "09 05 2015 02:05:48.356");
+			
+		}
+		
 
+		function startChannelsRetriving(){
+			//do channel related stuff
+			sendAvailableChannelsRequest(mapWidget.authToken, onAvailableChannelsSuccess, onErrorOccured);
 		}
 		
 		function onContextMenu(e){
 			console.log("Map clicked at "+e.latlng);
 			
-			document.getElementById('latitude_edit').value = e.latlng.lat;
-			document.getElementById('longitude_edit').value = e.latlng.lng;
+			document.getElementById("latitude_edit").value = e.latlng.lat;
+			document.getElementById("longitude_edit").value = e.latlng.lng;
 			
-			mapWidget.changeMapCenter(e.latlng.lat, e.latlng.lng);
-			
-			
-			
+			mapWidget.changeMapCenter(e.latlng.lat, e.latlng.lng);	
 			//alert("You clicked the map at " + e.latlng);
 		}
+		
+		
+		function onAvailableChannelsSuccess(jsonResponse){
+			var availableChannels = jsonResponse.channels;
+			var onSubscribedSuccess  = function (jsonResponse) {
+				var subscribedChannels = jsonResponse.channels;
+				fillChannelsList(availableChannels, subscribedChannels);
+			}
+			sendSubscribedChannelsRequest(mapWidget.authToken, onSubscribedSuccess, onErrorOccured);
+			
+		}
+		
+		function onErrorOccured(jsonResponse){
+			console.log("Something went wrong, errno = "+jsonResponse.errno);
+		}
+		
+		function fillChannelsList(availableChannels, subscribedChannels){
+			var channelsSelector = document.getElementById("channels_selector");
+			removeAllItemsFromSelector(channelsSelector);
+			console.log("Filling selector: available = "+ " "+availableChannels.length + " subscribed = " + subscribedChannels.length);
+			for (var i=0; i<availableChannels.length; i++){
+				var newOption = document.createElement("option");
+				newOption.text = availableChannels[i].name;
+				newOption.value = availableChannels[i].name;
+				
+				for (var j=0; j<subscribedChannels.length; j++){
+					if (availableChannels[i].name == subscribedChannels[j].name){
+						newOption.selected = true;
+						break;
+					}
+				}
+				
+				channelsSelector.add(newOption, null);
+			}
+			
+		}
+		
+		function getSelectedArray( selector ){
+			var selectedArray = new Array();
+			for (i=0; i< selector.options.length; i++) {
+				if (selector.options[i].selected) 
+					selectedArray[count] = selObj.options[i].value;
+			}
+			return selectedArray;
+		}
+		
+		function removeAllItemsFromSelector(selector){
+			while (selector.length !== 0){
+				selector.remove(selector.length-1);
+			}
+		}
+		
 	</script>
 </head>
 <html>	
@@ -60,6 +122,11 @@
 			<button onclick="onRefreshButtonClicked();">Refresh (do loadTags request for specified data)!</button><br>	
 		</td> 
 		<td>
+			Channels<br>
+			<select id="channels_selector" size="15" multiple="true" disabled=true>
+			</select>
+		</td>
+		<td>
 			<div id="map" style="width: 600px; height: 400px"></div>
 
 	
@@ -68,8 +135,12 @@
 				
 				mapWidget.map.on("contextmenu", onContextMenu);
 				
-				mapWidget.loadTagsForUser("Mark", "test");
+				onRefreshButtonClicked();
+				
+				
 			</script>
+			
+			
 		</td> 
         </tr>
 </table>	
