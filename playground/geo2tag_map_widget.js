@@ -1,14 +1,14 @@
-function MapWidget(latitude, longitude, radius, widgetName){
+function MapWidget(latitude, longitude,  widgetName){
 	this.latitude = latitude;
 	this.longitude = longitude;
 	this.widgetName = widgetName;
-	this.radius = radius;
 	this.map = null;
 	this.markers = new Array() ;
 	this.mapControl = null;
 	this.authToken = null;
 	
-	// Listeners
+	// Listeners map 
+	// each map element is an Array of function()
 	this.eventListeners = new Object();
 
 	
