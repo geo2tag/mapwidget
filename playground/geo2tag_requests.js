@@ -263,7 +263,7 @@ function buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel){
 		time_to: timeTo
 	}
 
-	if ( channel !== undefined) data["channel"] = channel; 
+	if ( channel !== null) data["channel"] = channel; 
 	
 	return data;
 }

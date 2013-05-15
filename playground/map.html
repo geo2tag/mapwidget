@@ -14,8 +14,10 @@
 		function onRefreshButtonClicked(){
 			var login = document.getElementById("login_edit").value;
 			var password = document.getElementById("login_edit").value;
-			
+			var onlyLastTag = document.getElementById("only_last_tag_checkbox").checked;
+			console.log("onlyLastTag:"+onlyLastTag);
 			mapWidget.addEventListener("onLoginSuccess",onMapWidgetLogin);
+			mapWidget.setShowOnlyLastTag(onlyLastTag);
 			mapWidget.login(login, password);
 
 		}
@@ -30,6 +32,7 @@
 				return;
 			}
 
+			//mapWidget.loadTags(latitude, longitude, radius );
 			mapWidget.filterCircle(latitude, longitude, radius, "09 05 2010 02:05:48.356", "09 05 2015 02:05:48.356");
 			
 		}
@@ -64,6 +67,7 @@
 			<input type="text" size="40" id="latitude_edit" title="Latitude" value="59.9195" ><br>
 			Longitude<br>
 			<input type="text" size="40" id="longitude_edit" title="Longitude" value="30.3262"><br>
+			<input type="checkbox" size="40" id="only_last_tag_checkbox"  >Display only the last tag in each channel<br>
 			<button onclick="onRefreshButtonClicked();">Refresh</button><br>	
 		</td> 
 
