@@ -136,7 +136,7 @@ MapWidget.prototype.filterCircle = function (latitude, longitude, radius, timeFr
 
 	if (this.authToken == null) return;
 
-	sendFilterCircleRequest(this.authToken, latitude, longitude, timeFrom, timeTo, radius, null,
+	sendFilterCircleRequest(this.authToken, latitude, longitude, timeFrom, timeTo, radius, null, 10,
 		bind(this, "onFilterSuccess"), bind(this, "onErrorOccured"));	
 		
 }

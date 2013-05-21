@@ -255,8 +255,9 @@ function sendWriteTagRequest(authToken, channel, title, description, longitude, 
  * @param {string} timeFrom  - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {string} timeTo  - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {string} channel, optional field
+ * @param {number} tagNumber, optional field
   */
-function buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel){
+function buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel, tagNumber){
 	var data = {
 		auth_token: authToken,
 		time_from: timeFrom,
@@ -264,7 +265,8 @@ function buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel){
 	}
 
 	if ( channel !== null) data["channel"] = channel; 
-	
+	if ( tagNumber > 0 ) data["tag_number"] = tagNumber; 
+ 	
 	return data;
 }
 
@@ -277,13 +279,14 @@ function buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel){
  * @param {string} timeTo - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {number} radius
  * @param {string} channel, optional field
+ * @param {number} tagNumber, optional field
  */
-function sendFilterCircleRequest(authToken, latitude, longitude, timeFrom, timeTo, radius, channel, onLoadCallback, onErrorCallback){
+function sendFilterCircleRequest(authToken, latitude, longitude, timeFrom, timeTo, radius, channel, tagNumber, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/filterCircle";
 	
 	// Create custom object
 	var data = sendFilterCircleRequest.buildJson(
-		buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel), latitude, longitude, radius);
+		buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel, tagNumber), latitude, longitude, radius);
 
 	//var data = sendFilterCircleRequest.buildJson(authToken, latitude, longitude, timeFrom, timeTo, radius, channel);
 
@@ -317,13 +320,15 @@ sendFilterCircleRequest.buildJson = function (data, latitude, longitude, radius)
  * @param {string} timeFrom - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {string} timeTo - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {string} channel, optional field
+ * @param {number} tagNumber, optional field
+
  */
 function sendFilterRectangleRequest(authToken, latitude1, longitude1, latitude2, longitude2, timeFrom, timeTo, 
-									channel, onLoadCallback, onErrorCallback){
+									channel, tagNumber, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/filterRectangle";
 	
 	var data = sendFilterRectangleRequest.buildJson
-		(buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel), latitude1, longitude1, latitude2, longitude2);
+		(buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel, tagNumber), latitude1, longitude1, latitude2, longitude2);
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
@@ -356,11 +361,12 @@ sendFilterRectangleRequest.buildJson = function (data, latitude1, longitude1, la
  * @param {string} timeFrom - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {string} timeTo - in format "09 05 2013 02:05:48.356" - date month year hour:minutes:seconds.milliseconds
  * @param {string} channel, optional field
+ * @param {number} tagNumber, optional field
  */
-function sendFilterPolygonRequest(authToken, polygon, timeFrom, timeTo, channel, onLoadCallback, onErrorCallback){
+function sendFilterPolygonRequest(authToken, polygon, timeFrom, timeTo, channel, tagNumber, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/filterPolygon";
 	
-	var data = sendFilterPolygonRequest.buildJson(buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel), polygon);
+	var data = sendFilterPolygonRequest.buildJson(buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel, tagNumber), polygon);
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
@@ -399,9 +405,11 @@ sendFilterPolygonRequest.buildJson = function (data, polygon){
  * @param {string} channel, optional field
  * @param {number} altitude1
  * @param {number} altitude2
+ * @param {number} tagNumber, optional field
+
  */
-function buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2){
-	var data = buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel);
+function buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2, tagNumber){
+	var data = buildJsonFor2dFilter(authToken, timeFrom, timeTo, channel, tagNumber);
 
 	(data["altitude_shift"])["altitude1"] = altitude1;
 	(data["altitude_shift"])["altitude2"] = altitude2;
@@ -419,13 +427,14 @@ function buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, a
  * @param {string} channel, optional field
  * @param {number} altitude1
  * @param {number} altitude2
+ * @param {number} tagNumber, optional field
  */
-function sendFilterCylinderRequest(authToken, latitude, longitude, timeFrom, timeTo, radius, channel, altitude1, altitude2, onLoadCallback, onErrorCallback){
+function sendFilterCylinderRequest(authToken, latitude, longitude, timeFrom, timeTo, radius, channel, altitude1, altitude2, tagNumber, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/filterCylinder";
 	
 	// Create custom object
 	var data = sendFilterCircleRequest.buildJson(
-		buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2), latitude, longitude, radius);
+		buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2, tagNumber), latitude, longitude, radius);
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
@@ -442,13 +451,14 @@ function sendFilterCylinderRequest(authToken, latitude, longitude, timeFrom, tim
  * @param {string} channel, optional field
  * @param {number} altitude1
  * @param {number} altitude2
+ * @param {number} tagNumber, optional field
  */
 function sendFilterBoxRequest(authToken, latitude1, longitude1, latitude2, longitude2, timeFrom, timeTo, 
-									channel, altitude1, altitude2, onLoadCallback, onErrorCallback){
+									channel, tagNumber, altitude1, altitude2, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/filterBox";
 	
 	var data = sendFilterRectangleRequest.buildJson
-		(buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2), latitude1, longitude1, latitude2, longitude2);
+		(buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2, tagNumber), latitude1, longitude1, latitude2, longitude2);
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
@@ -462,11 +472,12 @@ function sendFilterBoxRequest(authToken, latitude1, longitude1, latitude2, longi
  * @param {string} channel, optional field
  * @param {number} altitude1
  * @param {number} altitude2
+ * @param {number} tagNumber, optional field
  */
-function sendFilterPolygonRequest(authToken, polygon, timeFrom, timeTo, channel, altitude1, altitude2, onLoadCallback, onErrorCallback){
+function sendFilterPolygonRequest(authToken, polygon, timeFrom, timeTo, channel, altitude1, altitude2, tagNumber, onLoadCallback, onErrorCallback){
 	var REQUEST_URL = "/filterFence";
 	
-	var data = sendFilterPolygonRequest.buildJson(buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2), polygon);
+	var data = sendFilterPolygonRequest.buildJson(buildJsonFor3dFilter(authToken, timeFrom, timeTo, channel, altitude1, altitude2, tagNumber), polygon);
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
