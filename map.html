@@ -23,6 +23,15 @@
 		}
 		
 		function onMapWidgetLogin(){
+			var dbName = document.getElementById("db_name_edit").value;
+			
+			sendSetDbRequest(mapWidget.authToken, dbName, onSetDbSuccess, mapWidget.onErrorOccured);
+			
+			
+		}
+			
+			
+		function onSetDbSuccess(jsonResponse){
 			var radius = document.getElementById("radius_edit").value;
 			var latitude = document.getElementById("latitude_edit").value;
 			var longitude = document.getElementById("longitude_edit").value;
@@ -31,11 +40,10 @@
 				console.log("Radius, latitude or longitude have incorrect value!!!");
 				return;
 			}
-
 			//mapWidget.loadTags(latitude, longitude, radius );
 			mapWidget.filterCircle(latitude, longitude, radius, "09 05 2010 02:05:48.356", "09 05 2015 02:05:48.356");
-			
 		}
+		
 		
 		
 		function onContextMenu(e){
@@ -67,6 +75,8 @@
 			<input type="text" size="40" id="latitude_edit" title="Latitude" value="59.9195" ><br>
 			Longitude<br>
 			<input type="text" size="40" id="longitude_edit" title="Longitude" value="30.3262"><br>
+			DbName<br>
+			<input type="text" size="40" id="db_name_edit" title="DbName" value="default"><br>
 			<input type="checkbox" size="40" id="only_last_tag_checkbox"  >Display only the last tag in each channel<br>
 			<button onclick="onRefreshButtonClicked();">Refresh</button><br>	
 		</td> 

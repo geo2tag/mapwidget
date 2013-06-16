@@ -482,3 +482,21 @@ function sendFilterPolygonRequest(authToken, polygon, timeFrom, timeTo, channel,
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
+
+/* 
+ * @param {string} authToken
+ * @param {string} dbName 
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendSetDbRequest(authToken, dbName, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/setDb";
+	
+	var data = {
+		auth_token: authToken,
+		db_name: dbName
+	};
+
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
