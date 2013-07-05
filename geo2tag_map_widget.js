@@ -132,11 +132,11 @@ MapWidget.prototype.loadTags = function (latitude, longitude, radius){
 /*
  * Perform filterCircle request
  */
-MapWidget.prototype.filterCircle = function (latitude, longitude, radius, timeFrom, timeTo){
+MapWidget.prototype.filterCircle = function (latitude, longitude, radius, timeFrom, timeTo, tagNumber){
 
 	if (this.authToken == null) return;
 
-	sendFilterCircleRequest(this.authToken, latitude, longitude, timeFrom, timeTo, radius, null, 10,
+	sendFilterCircleRequest(this.authToken, latitude, longitude, timeFrom, timeTo, radius, null, tagNumber,
 		bind(this, "onFilterSuccess"), bind(this, "onErrorOccured"));	
 		
 }

@@ -71,6 +71,7 @@ function doRequestInternal(url, data, onLoadCallback, onErrorCallback)
 	console.log("Sending "+data+ ", to "+url);
 
 	xhr.onload = function() {
+		console.log(this.responseText);
 		// Parsing response 
 		var responseObject = JSON.parse(this.responseText);
 		// Now response is a map
