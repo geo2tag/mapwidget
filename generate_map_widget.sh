@@ -3,10 +3,10 @@
 # Change for your dir
 web_server_dir="/var/www/";
 
-# Usage: ./generate_map_widget.sh login password
+# Usage: ./generate_map_widget.sh login password initial_lat initial_lon
 
-# This script generates unique map widget from map_template.html with 
-# hardcoded credentials, copies it into $web_server_dir
+# This script generates unique map widgets from map_template.html and map_template_m.html with 
+# hardcoded credentials and initial position, copies it into $web_server_dir
 
 # Before using ensure that $web_server_dir contains 
 # geo2tag_requests.js and geo2tag_map_widget.js and server hardcoded in
@@ -14,6 +14,15 @@ web_server_dir="/var/www/";
 # http://www.gubatron.com/blog/2011/11/29/lighttpd-allow-access-control-allow-origin-headers-on-the-server-status-page/ )
 # because in other cases generated widgets will not work.
 
+function replace_placeholders(){
+
+	sed -i "s/LOGIN_PLACEHOLDER/$login/" $1 
+	sed -i "s/PASSWORD_PLACEHOLDER/$password/" $1
+	sed -i "s/LAT_PLACEHOLDER/$latitude/" $1
+	sed -i "s/LON_PLACEHOLDER/$longitude/" $1
+
+	echo $1
+}
 
 function create_random_link(){
 	
@@ -28,21 +37,25 @@ function create_random_link(){
 }
 
 
-if [ $# -ne "2" ]
+if [ $# -ne "4" ]
 then
-  echo "Usage: ./generate_map_widget.sh login password"
+  echo "Usage: ./generate_map_widget.sh login password latitude longitude"
   exit 1
 fi
 
 login=$1;
 password=$2;
+latitude=$3;
+longitude=$4; 
 
 link=`create_random_link`;
 map_file_name="$web_server_dir/map_$link.html";
+map_file_m_name="$web_server_dir/map_${link}_m.html";
 
 
 cp map_template.html $map_file_name 
-sed -i "s/LOGIN_PLACEHOLDER/$login/" $map_file_name 
-sed -i "s/PASSWORD_PLACEHOLDER/$password/" $map_file_name
+replace_placeholders $map_file_name
 
-echo $map_file_name
+cp map_template_m.html $map_file_m_name 
+replace_placeholders $map_file_m_name
+

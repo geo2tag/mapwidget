@@ -74,9 +74,9 @@
 			Radius (km)<br>
 			<input type="number" size="40" id="radius_edit" title="Radius" value="10" min="1"><br>
 			Latitude<br>
-			<input type="text" size="40" id="latitude_edit" title="Latitude" value="59.9195" ><br>
+			<input type="text" size="40" id="latitude_edit" title="Latitude" value="LAT_PLACEHOLDER" ><br>
 			Longitude<br>
-			<input type="text" size="40" id="longitude_edit" title="Longitude" value="30.3262"><br>
+			<input type="text" size="40" id="longitude_edit" title="Longitude" value="LON_PLACEHOLDER"><br>
 			<button onclick="onRefreshButtonClicked();">Refresh</button><br>	
 		</td> 
 
@@ -85,7 +85,7 @@
 
 	
 			<script>
-				var mapWidget = new MapWidget(59.9195, 30.3262, "map");
+				var mapWidget = new MapWidget(LAT_PLACEHOLDER, LON_PLACEHOLDER, "map");
 				mapWidget.showLayerControl = false;
 				mapWidget.map.on("contextmenu", onContextMenu);
 				
