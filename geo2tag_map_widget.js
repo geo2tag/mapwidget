@@ -6,7 +6,7 @@ function MapWidget(latitude, longitude,  widgetName){
 	this.markers = new Array() ;
 	this.mapControl = null;
 	this.authToken = null;
-	
+	this.showLayerControl = true;
 	this.showOnlyLastTag = false;
 	// Listeners map 
 	// each map element is an Array of function()
@@ -72,6 +72,7 @@ MapWidget.prototype.addLoadTagsResultToMap = function ( tags){
  * @param {map layer - tag array} tagMarkers
  */
 MapWidget.prototype.addLayerControl = function (tagMarkers){
+
 	overlayMaps = new Object();
 	
 	for (var u in tagMarkers){
@@ -79,7 +80,7 @@ MapWidget.prototype.addLayerControl = function (tagMarkers){
 		var currentGroup = L.layerGroup(tagMarkers[u]).addTo(this.map);
 		overlayMaps[u] = currentGroup;	
 	} 
-	this.mapControl = L.control.layers(null, overlayMaps).addTo(this.map);
+	if (this.showLayerControl) this.mapControl = L.control.layers(null, overlayMaps).addTo(this.map);
 }
 	
 /*
@@ -92,7 +93,7 @@ MapWidget.prototype.removeAllTagsFromMap = function(){
 	}
 	this.markers.length=0;
 
-	this.map.removeControl(this.mapControl);
+	if (this.showLayerControl) this.map.removeControl(this.mapControl);
 }	
 
 /*

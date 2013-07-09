@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html>	
+<head>
+	<meta charset="utf-8">
+	<script src="geo2tag_requests.js"></script>
+	
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="http://leafletjs.com/dist/leaflet.css" />
+	
+	<script src="http://leafletjs.com/dist/leaflet.js"></script>
+	<script src="geo2tag_map_widget.js"></script>
+	
+	<script>
+
+		var login = "LOGIN_PLACEHOLDER";
+		var password = "PASSWORD_PLACEHOLDER";
+		var dbName = "tracker_db";
+		var serverUrl = "http://194.85.173.9:20005/service";
+		var tagNumber = 0;
+
+		SettingsStorage.SERVER_URL = serverUrl;	
+			
+
+		function onRefreshButtonClicked(){
+			//console.log("onlyLastTag:"+onlyLastTag);
+			mapWidget.addEventListener("onLoginSuccess",onMapWidgetLogin);
+			//mapWidget.setShowOnlyLastTag(onlyLastTag);
+			mapWidget.login(login, password);
+
+		}
+		
+		function onMapWidgetLogin(){
+			
+			sendSetDbRequest(mapWidget.authToken, dbName, onSetDbSuccess, mapWidget.onErrorOccured);
+			
+			
+		}
+			
+			
+		function onSetDbSuccess(jsonResponse){
+			var radius = document.getElementById("radius_edit").value;
+			var latitude = document.getElementById("latitude_edit").value;
+			var longitude = document.getElementById("longitude_edit").value;
+			
+			if ( (typeof latitude == "number") || (typeof longitude == "number") || radius<1){
+				console.log("Radius, latitude or longitude have incorrect value!!!");
+				return;
+			}
+			mapWidget.filterCircle(latitude, longitude, radius, "09 05 2010 02:05:48.356", "09 05 2015 02:05:48.356", tagNumber);
+		}
+		
+		
+		
+		function onContextMenu(e){
+			console.log("Map clicked at "+e.latlng);
+			
+			document.getElementById("latitude_edit").value = e.latlng.lat;
+			document.getElementById("longitude_edit").value = e.latlng.lng;
+			
+			mapWidget.changeMapCenter(e.latlng.lat, e.latlng.lng);	
+			//alert("You clicked the map at " + e.latlng);
+		}
+		
+		
+	
+	</script>
+</head>
+
+<body>
+<table border>
+        <tr>
+                <td>
+			Radius (km)<br>
+			<input type="number" size="40" id="radius_edit" title="Radius" value="10" min="1"><br>
+			Latitude<br>
+			<input type="text" size="40" id="latitude_edit" title="Latitude" value="59.9195" ><br>
+			Longitude<br>
+			<input type="text" size="40" id="longitude_edit" title="Longitude" value="30.3262"><br>
+			<button onclick="onRefreshButtonClicked();">Refresh</button><br>	
+		</td> 
+
+		<td>
+			<div id="map" style="width: 600px; height: 400px"></div>
+
+	
+			<script>
+				var mapWidget = new MapWidget(59.9195, 30.3262, "map");
+				mapWidget.showLayerControl = false;
+				mapWidget.map.on("contextmenu", onContextMenu);
+				
+				onRefreshButtonClicked();
+				
+				
+			</script>
+			
+			
+		</td> 
+        </tr>
+</table>
+</body>	
+</html>
