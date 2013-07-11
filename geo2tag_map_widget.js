@@ -206,6 +206,7 @@ MapWidget.prototype.onLoadTagsSuccess = function (jsonResponse){
 }
 	
 MapWidget.prototype.onErrorOccured = function (jsonResponse){
+	this.raiseEvent("onErrorOccured");
 	alert("Error during requests processing, errno = "+jsonResponse.errno);
 }
 
