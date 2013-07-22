@@ -501,3 +501,61 @@ function sendSetDbRequest(authToken, dbName, onLoadCallback, onErrorCallback){
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
+
+
+/* 
+	Date utils 
+*/
+
+/* 
+ * @param {integer} yearShift 
+ * @return string representation of current dateTime with year = year - yearShift
+ */
+function getPastDateTime(yearShift){
+	var date = new Date();
+	date.setFullYear( date.getFullYear() - yearShift);
+
+	return formatDateTime(date);
+}
+
+/* 
+ * @return string representation of current dateTime
+ */
+function getCurrentDateTime(){
+	var date = new Date();
+	return formatDateTime(date);	
+}
+
+// Format for dateTime
+// dd mm yyyy hh:MM:ss.zzz
+/* 
+ * @param {Date} date
+ * @return string representation of date
+ */
+function formatDateTime(date){
+	var result = addLeadingZeros(date.getDate(),2) + " "
+                + addLeadingZeros((date.getMonth()+1),2)  + " " 
+                + date.getFullYear() + " "  
+                + addLeadingZeros(date.getHours(),2) + ":"  
+                + addLeadingZeros(date.getMinutes(),2) + ":" 
+                + addLeadingZeros(date.getSeconds(),2) + "."
+		+ addLeadingZeros(date.getMilliseconds(),3);
+
+	return result;
+}
+
+/*
+ * Add zerosCount leading zeros to string str
+ * @param {string} str
+ * @param {integer} zerosCount
+ * @return {string} str with leading zeros
+ */
+function addLeadingZeros(str, zerosCount){
+	var zerosString = "";
+	for (var i = 0; i < zerosCount-1; i++) {
+     		zerosString += "0"; 
+	}
+	
+
+	return (zerosString + str).slice(-zerosCount);
+}
