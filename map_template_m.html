@@ -54,7 +54,7 @@
 				stopSpinner();
 				return;
 			}
-			mapWidget.filterCircle(latitude, longitude, radius, "09 05 2010 02:05:48.356", "09 05 2015 02:05:48.356", tagNumber);
+			mapWidget.filterCircle(latitude, longitude, radius, getPastDateTime(1), getCurrentDateTime(), tagNumber);
 		}
 		
 		

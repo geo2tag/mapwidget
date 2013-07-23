@@ -45,13 +45,10 @@
 		function refresh(){
 
 			if (token == ""){
-				//console.log("onlyLastTag:"+onlyLastTag);
 				mapWidget.addEventListener("onLoginSuccess",onMapWidgetLogin);
-				//mapWidget.setShowOnlyLastTag(onlyLastTag);
 				mapWidget.addEventListener("onLoginSuccess",onMapWidgetLogin);
 				mapWidget.addEventListener("onErrorOccured", stopSpinner);
 				mapWidget.addEventListener("onFilterSuccess", stopSpinner);
-				//mapWidget.setShowOnlyLastTag(onlyLastTag);
 				mapWidget.login(login, password);
 			} else {
 				onSetDbSuccess(null);
