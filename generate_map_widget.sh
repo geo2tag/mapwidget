@@ -21,7 +21,7 @@ function replace_placeholders(){
 	sed -i "s/LAT_PLACEHOLDER/$latitude/" $1
 	sed -i "s/LON_PLACEHOLDER/$longitude/" $1
 
-	echo $1
+	#echo $1
 }
 
 function create_random_link(){
@@ -37,9 +37,9 @@ function create_random_link(){
 }
 
 
-if [ $# -ne "4" ]
+if [ $# -ne "5" ]
 then
-  echo "Usage: ./generate_map_widget.sh login password latitude longitude"
+  echo "Usage: ./generate_map_widget.sh login password latitude longitude server_name"
   exit 1
 fi
 
@@ -47,6 +47,7 @@ login=$1;
 password=$2;
 latitude=$3;
 longitude=$4; 
+server_name=$5;
 
 link=`create_random_link`;
 map_file_name="$web_server_dir/map_$link.html";
@@ -59,3 +60,5 @@ replace_placeholders $map_file_name
 cp map_template_m.html $map_file_m_name 
 replace_placeholders $map_file_m_name
 
+echo "${server_name}map_${link}.html"
+echo "${server_name}map_${link}_m.html"
