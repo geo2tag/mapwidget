@@ -55,6 +55,16 @@ DataMark.getStringRepresentation = function(tag){
 	return result;
 };
 
+function isFunction(functionToCheck) {
+	var getType = {};
+	return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+}
+
+function safeFunctionCall(functionToCall, parameter){
+	if (isFunction(functionToCall))
+		functionToCall(parameter);
+}
+
 /*
  * Perform POST async request
  * @param {string} url 
@@ -77,17 +87,17 @@ function doRequestInternal(url, data, onLoadCallback, onErrorCallback)
 		// Now response is a map
 		errno = responseObject["errno"];
 		
-		if (errno == 0){
-		
-			onLoadCallback(responseObject);
+
+		if (errno == 0){	
+			safeFunctionCall(onLoadCallback, responseObject)
 		}else{		
-			onErrorCallback(responseObject);
+			safeFunctionCall(onErrorCallback, responseObject)
 		}
 	};
 
 	xhr.onerror =  function() {
 		var responseObject = JSON.parse(this.responseText);
-		onErrorCallback(responseObject);
+		safeFunctionCall(onErrorCallback, responseObject)
 	};
 	xhr.send(data);
 
@@ -502,6 +512,47 @@ function sendSetDbRequest(authToken, dbName, onLoadCallback, onErrorCallback){
 		onLoadCallback, onErrorCallback);
 }
 
+/* 
+ * @param {string} loginText
+ * @param {string} passwordText
+ * @param {string} newPasswordText
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendChangePasswordRequest(loginText, passwordText, newPasswordText, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/changePassword";
+	
+	// Create custom object
+	var data = {
+		login: loginText,
+		password: passwordText,
+		new_password: newPasswordText
+	};
+	
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+/* 
+ * @param {string} authToken
+ * @param {string} name
+ * @param {string} field
+ * @param {string} value 
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendAlterChannelRequest(authToken, name, field, value, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/alterChannel";
+	
+	var data = {
+		auth_token: authToken,
+		name: name,
+		field: field,
+		value: value
+	};
+
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
 
 /* 
 	Date utils 
