@@ -16,7 +16,7 @@ function SettingsStorage(){
 }
 
 // Default value
-SettingsStorage.SERVER_URL = "http://demo64.geo2tag.org/service";
+SettingsStorage.SERVER_URL = "http://194.85.173.9:20005/service";
 
 /*
  * DataMark class constructor
@@ -532,6 +532,7 @@ function sendChangePasswordRequest(loginText, passwordText, newPasswordText, onL
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
 }
+
 /* 
  * @param {string} authToken
  * @param {string} name
@@ -549,6 +550,30 @@ function sendAlterChannelRequest(authToken, name, field, value, onLoadCallback, 
 		field: field,
 		value: value
 	};
+
+	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
+		onLoadCallback, onErrorCallback);
+}
+
+/* 
+ * @param {string} authToken
+ * @param {string} field
+ * @param {string} substirng 
+ * @param {string} tagNumber
+ * @param {function (jsonObject)} onLoadCallback
+ * @param {function (jsonObject)} onErrorCallback
+ */
+function sendFilterSubstringRequest(authToken, field, substring, tagNumber, onLoadCallback, onErrorCallback){
+	var REQUEST_URL = "/filterSubstring";
+	
+	var data = {
+		auth_token: authToken,
+		field: field,
+		substring: substring
+	};
+
+	if (tagNumber > 0)
+		data['tag_number'] = tagNumber;
 
 	doRequestInternal(REQUEST_URL, JSON.stringify(data), /* Serialising object to string*/
 		onLoadCallback, onErrorCallback);
